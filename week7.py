@@ -1,80 +1,78 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.datasets import load_iris
 
-# Task 1: Load and Explore the Dataset
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']
+#Task 1
+#Iris dataset from sklearn
 try:
-    # Load the dataset
-    df = pd.read_csv(url, header=None, names=column_names)
+    iris_data = load_iris()
+    df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
+    df['species'] = iris_data.target
+    df['species'] = df['species'].map(dict(zip(range(3), iris_data.target_names)))
     print("Dataset loaded successfully.")
-    
-    # Display the first few rows
-    print("First few rows of the dataset:")
-    print(df.head())
-
-    # Explore the structure of the dataset
-    print("\nDataset Info:")
-    print(df.info())
-
-    # Check for missing values
-    print("\nMissing Values in the dataset:")
-    print(df.isnull().sum())
-
-    # Clean the dataset by filling missing values or dropping them (if any)
-    df = df.dropna()  # Dropping rows with missing values (if any)
-
 except Exception as e:
-    print(f"Error loading dataset: {e}")
+    print("Error loading dataset:", e)
 
-# Task 2: Basic Data Analysis
-# Basic statistics of the numerical columns
-print("\nBasic Statistics of the dataset:")
-print(df.describe())
+# Display the first 5 rows
+df.head()
 
-# Perform grouping based on the categorical column 'species' and compute mean of numerical columns
-print("\nGroup by 'species' and calculate mean of numerical columns:")
-print(df.groupby('species').mean())
 
-# Identify any patterns or interesting findings
-print("\nInteresting Pattern - Average Petal Length per Species:")
-print(df.groupby('species')['petal_length'].mean())
+# Check data types and missing values
+print(df.info())
+print("\nMissing values:\n", df.isnull().sum())
 
-# Task 3: Data Visualization
-# Set the plot style
-sns.set(style="whitegrid")
 
-# Line Chart (e.g., trends in petal length over time or observations)
-plt.figure(figsize=(10, 6))
-sns.lineplot(data=df, x=df.index, y="petal_length", hue="species", marker='o')
-plt.title("Petal Length Over Observations")
-plt.xlabel("Observation Index")
-plt.ylabel("Petal Length")
-plt.legend(title="Species")
+# Check data types and missing values
+print(df.info())
+print("\nMissing values:\n", df.isnull().sum())
+
+
+#Task 2
+
+# Basic statistics
+df.describe()
+
+# Group by species and compute the mean of features
+grouped = df.groupby('species').mean()
+grouped
+
+#Task 3
+
+#Line Chart
+plt.figure(figsize=(10, 5))
+for species in df['species'].unique():
+    subset = df[df['species'] == species]
+    plt.plot(subset.index, subset['petal length (cm)'], label=species)
+plt.title("Petal Length Over Index")
+plt.xlabel("Index")
+plt.ylabel("Petal Length (cm)")
+plt.legend()
 plt.show()
 
-# Bar Chart (e.g., Average petal length per species)
-plt.figure(figsize=(8, 6))
-sns.barplot(x='species', y='petal_length', data=df, palette='viridis')
+#Bar Chart
+plt.figure(figsize=(8, 5))
+sns.barplot(x=grouped.index, y=grouped['petal length (cm)'], palette="viridis")
 plt.title("Average Petal Length per Species")
+plt.ylabel("Petal Length (cm)")
 plt.xlabel("Species")
-plt.ylabel("Average Petal Length")
 plt.show()
 
-# Histogram (e.g., Distribution of sepal length)
-plt.figure(figsize=(8, 6))
-sns.histplot(df['sepal_length'], kde=True, bins=20, color='blue')
-plt.title("Distribution of Sepal Length")
-plt.xlabel("Sepal Length")
-plt.ylabel("Frequency")
+
+#Histogram
+
+plt.figure(figsize=(8, 5))
+sns.histplot(df['sepal width (cm)'], bins=20, kde=True, color='skyblue')
+plt.title("Distribution of Sepal Width")
+plt.xlabel("Sepal Width (cm)")
 plt.show()
 
-# Scatter Plot (e.g., Relationship between sepal length and petal length)
-plt.figure(figsize=(8, 6))
-sns.scatterplot(x='sepal_length', y='petal_length', data=df, hue='species', style='species', palette='Set1')
-plt.title("Sepal Length vs Petal Length")
-plt.xlabel("Sepal Length")
-plt.ylabel("Petal Length")
-plt.legend(title="Species")
+#Scatter Plot
+plt.figure(figsize=(8, 5))
+sns.scatterplot(data=df, x='sepal length (cm)', y='petal length (cm)', hue='species', palette="deep")
+plt.title("Sepal Length vs. Petal Length")
+plt.xlabel("Sepal Length (cm)")
+plt.ylabel("Petal Length (cm)")
+plt.legend()
 plt.show()
+
